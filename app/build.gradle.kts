@@ -28,6 +28,9 @@ android {
         }
     }
     compileOptions {
+        // AQUÍ ESTÁ EL PRIMER CAMBIO: Habilitar desugaring
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -40,7 +43,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
     }
-    
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -68,6 +71,9 @@ tasks.withType<Test>().configureEach {
 }
 
 dependencies {
+    // AQUÍ ESTÁ EL SEGUNDO CAMBIO: La librería de desugaring
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -80,7 +86,7 @@ dependencies {
     implementation(libs.io.coil.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.material.icons.extended)
-    
+
     // Retrofit & Network
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
@@ -93,13 +99,13 @@ dependencies {
     testImplementation(libs.mockk)
     //testImplementation("io.mockk:mockk-inline:1.13.9") // Puede causar conflictos en AndroidTest
     testImplementation(libs.kotlinx.coroutines.test)
-    
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.mockk.android)
-    
+
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
