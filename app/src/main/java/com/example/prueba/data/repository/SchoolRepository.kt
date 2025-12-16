@@ -51,8 +51,20 @@ object SchoolRepository {
 
     suspend fun register(user: User): Boolean {
         return try {
-            val request = RegisterRequest(user.name, user.email, user.password)
+            // Ajuste crítico: mapear los campos del User al nuevo RegisterRequest que coincide con el DTO
+            val request = RegisterRequest(
+                email = user.email,
+                password = user.password,
+                role = "ESTUDIANTE", // Valor por defecto o dinámico si decides implementarlo en la UI
+                nombre = user.name
+                // telefono, grado, etc., usarán los valores por defecto del data class
+            )
             val response = apiService.register(request)
+            
+            if (!response.isSuccessful) {
+                logError("SchoolRepository", "Register failed: ${response.errorBody()?.string()}")
+            }
+            
             response.isSuccessful
         } catch (e: Exception) {
             logError("SchoolRepository", "Register exception: ${e.message}")

@@ -5,8 +5,10 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.prueba.data.local.SessionManager
+import com.example.prueba.data.model.Quote
 import com.example.prueba.data.model.User
 import com.example.prueba.data.repository.AvatarRepository
+import com.example.prueba.data.repository.ExternalRepository
 import com.example.prueba.data.repository.SchoolRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,16 +25,28 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _registerState = MutableStateFlow<RegisterState>(RegisterState.Idle)
     val registerState: StateFlow<RegisterState> = _registerState.asStateFlow()
 
+    private val _quoteState = MutableStateFlow<Quote?>(null)
+    val quoteState: StateFlow<Quote?> = _quoteState.asStateFlow()
+
+    init {
+        fetchDailyQuote()
+    }
+
+    private fun fetchDailyQuote() {
+        viewModelScope.launch {
+            val quote = ExternalRepository.getRandomQuote()
+            _quoteState.value = quote
+        }
+    }
+
     fun login(email: String, pass: String) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             val loginResponse = SchoolRepository.login(email, pass)
             
             if (loginResponse != null) {
-                // Guardamos token y datos del usuario desde la API
                 SessionManager.saveAuthToken(loginResponse.token)
                 SessionManager.saveUserName(loginResponse.user.name)
-                
                 _loginState.value = LoginState.Success
             } else {
                 _loginState.value = LoginState.Error("Credenciales incorrectas o error de red")
@@ -45,7 +59,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _registerState.value = RegisterState.Loading
             val success = SchoolRepository.register(User(email, pass, name))
             if (success) {
-                // Si el registro es exitoso, hacemos login para obtener el token
                 val loginResponse = SchoolRepository.login(email, pass)
                 if (loginResponse != null) {
                     SessionManager.saveAuthToken(loginResponse.token)
@@ -58,6 +71,14 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 _registerState.value = RegisterState.Error("El usuario ya existe o error de red")
             }
+        }
+    }
+
+    fun recoverPassword(email: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            // Simulación de envío de correo (Requisito mínimo)
+            kotlinx.coroutines.delay(1500) 
+            onResult(true) 
         }
     }
     

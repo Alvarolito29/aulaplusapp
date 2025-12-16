@@ -37,10 +37,10 @@ export class RegisterDto {
   @ApiProperty({
     example: Role.ESTUDIANTE,
     description: 'Rol del usuario',
-    enum: [Role.ESTUDIANTE, Role.PROFESOR],
+    enum: Role,
   })
   @IsNotEmpty()
-  @IsEnum([Role.ESTUDIANTE, Role.PROFESOR])
+  @IsEnum(Role)
   role: Role;
 
   @ApiProperty({

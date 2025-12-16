@@ -13,7 +13,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import io.mockk.every
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -73,7 +72,17 @@ class AuthViewModelTest : StringSpec({
 
         val state = viewModel.loginState.value
         state.shouldBeInstanceOf<LoginState.Error>()
-        (state as LoginState.Error).message shouldBe "Credenciales incorrectas o error de red"
+        
+        // CORRECCIÓN: Usar directamente el cast seguro que nos provee shouldBeInstanceOf 
+        // o comprobarlo con smart cast si es posible. 
+        // Al usar shouldBeInstanceOf, Kotest ya verifica el tipo, pero el compilador a veces lanza warning.
+        // La forma más limpia para evitar el warning 'No cast needed' es NO hacer el cast explícito si Kotlin ya hizo smart cast,
+        // o si no lo hizo, estructurarlo para que sea obvio.
+        
+        // En este caso, simplemente accedemos a la propiedad si el smart cast funciona, o hacemos un check seguro.
+        if (state is LoginState.Error) {
+             state.message shouldBe "Credenciales incorrectas o error de red"
+        }
     }
     
     // Prueba 3: Registro exitoso
@@ -110,7 +119,10 @@ class AuthViewModelTest : StringSpec({
 
         val state = viewModel.registerState.value
         state.shouldBeInstanceOf<RegisterState.Error>()
-        (state as RegisterState.Error).message shouldBe "El usuario ya existe o error de red"
+
+        if (state is RegisterState.Error) {
+            state.message shouldBe "El usuario ya existe o error de red"
+        }
     }
 
     // Prueba 5: Registro exitoso pero login posterior falla
@@ -127,7 +139,10 @@ class AuthViewModelTest : StringSpec({
 
         val state = viewModel.registerState.value
         state.shouldBeInstanceOf<RegisterState.Error>()
-        (state as RegisterState.Error).message shouldBe "Error al iniciar sesión después del registro"
+
+        if (state is RegisterState.Error) {
+            state.message shouldBe "Error al iniciar sesión después del registro"
+        }
     }
     
     // Prueba 6: Logout debe limpiar la sesión
@@ -141,9 +156,6 @@ class AuthViewModelTest : StringSpec({
         viewModel.logout()
 
         dispatcher.scheduler.advanceUntilIdle()
-
-        // No hay estado para verificar, la prueba pasa si no hay excepciones
-        // En un caso real verificaríamos con `coVerify` que se llamó al método
     }
     
     // Prueba 7: Estado inicial del ViewModel debe ser Idle
