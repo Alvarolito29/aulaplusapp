@@ -46,3 +46,4 @@ El archivo APK firmado (`app-release.apk`) se encuentra en la carpeta `app/relea
 La llave `upload-keystore.jks` se encuentra en la raíz del módulo `app`.
 **Clave del Keystore:** `123456` (Ejemplo académico).
 
+
