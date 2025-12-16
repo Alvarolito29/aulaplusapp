@@ -1,60 +1,57 @@
-# Build stage
+# --- Etapa 1: Builder ---
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar package files
+# Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias
+# Instalar TODAS las dependencias (incluyendo dev y herramientas de compilación implícitas)
+# Esto suele funcionar mejor aquí porque no está restringido a --only=production
 RUN npm ci
 
-# Copiar código fuente
+# Copiar el código fuente
 COPY . .
 
-# Build de la aplicación
+# Construir la aplicación (NestJS build)
 RUN npm run build
 
-# Production stage
+# Limpiar dependencias de desarrollo para dejar solo las necesarias para producción
+# Esto prepara la carpeta node_modules final
+RUN npm prune --production
+
+# --- Etapa 2: Producción ---
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar dependencias necesarias para sharp en Alpine
-# Requerimos dependencias nativas completas para evitar problemas de compilación
+# Instalar dependencias del sistema necesarias para runtime (Sharp y otros)
+# Mantenemos las que usaba el profesor para asegurar compatibilidad
 RUN apk add --no-cache \
     libc6-compat \
-    python3 \
-    make \
-    g++ \
     vips-dev \
     fftw-dev \
-    build-base
+    build-base \
+    python3 \
+    && rm -rf /var/cache/apk/*
 
-# Copiar package files
+# Copiar archivos de configuración
 COPY package*.json ./
 
-# Instalar dependencias
-# Eliminamos el truco de sharp precompilado y dejamos que npm ci maneje todo con ignore-scripts para devDeps
-# Pero para prod, necesitamos que sharp se construya si es necesario o baje el binario correcto
-# El error indica que npm ci --only=production falla compilando.
-# Vamos a instalar sharp explícitamente para linux musl antes de npm ci
-RUN npm install --arch=x64 --platform=linux --libc=musl sharp
-
-# Ahora instalamos el resto, ignorando scripts para evitar re-compilaciones innecesarias de otros paquetes
-RUN npm ci --only=production --ignore-scripts
-
-# Copiar build desde builder stage
+# --- EL CAMBIO CLAVE ---
+# En lugar de ejecutar 'npm ci --only=production' (que falla compilando Sharp),
+# copiamos los node_modules YA listos y compilados desde la etapa builder.
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
-# Crear directorios para uploads con permisos correctos
+# Crear directorios para uploads con permisos
 RUN mkdir -p uploads/thumbnails && \
     chmod -R 777 uploads
 
 # Exponer puerto
 EXPOSE 3008
 
-# Variables de entorno por defecto
+# Variables de entorno
 ENV NODE_ENV=production
 ENV PORT=3008
 
@@ -62,5 +59,5 @@ ENV PORT=3008
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
   CMD node -e "require('http').get('http://localhost:3008/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Iniciar aplicación
+# Iniciar la aplicación
 CMD ["node", "dist/main"]
