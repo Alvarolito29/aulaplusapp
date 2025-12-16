@@ -7,7 +7,6 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependencias
-# Agregamos --ignore-scripts para evitar que intente compilar sharp aquí si falla
 RUN npm ci
 
 # Copiar código fuente
@@ -22,19 +21,27 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Instalar dependencias necesarias para sharp en Alpine
-# vips-dev y build-base son pesados, intentaremos usar binarios precompilados primero
+# Requerimos dependencias nativas completas para evitar problemas de compilación
 RUN apk add --no-cache \
     libc6-compat \
     python3 \
     make \
-    g++ 
+    g++ \
+    vips-dev \
+    fftw-dev \
+    build-base
 
 # Copiar package files
 COPY package*.json ./
 
-# TRUCO: Forzar plataforma linuxmusl para sharp en Alpine para evitar compilación
-# Esto descarga el binario correcto en lugar de intentar compilarlo
-RUN npm install --cpu=x64 --os=linux --libc=musl sharp
+# Instalar dependencias
+# Eliminamos el truco de sharp precompilado y dejamos que npm ci maneje todo con ignore-scripts para devDeps
+# Pero para prod, necesitamos que sharp se construya si es necesario o baje el binario correcto
+# El error indica que npm ci --only=production falla compilando.
+# Vamos a instalar sharp explícitamente para linux musl antes de npm ci
+RUN npm install --arch=x64 --platform=linux --libc=musl sharp
+
+# Ahora instalamos el resto, ignorando scripts para evitar re-compilaciones innecesarias de otros paquetes
 RUN npm ci --only=production --ignore-scripts
 
 # Copiar build desde builder stage
