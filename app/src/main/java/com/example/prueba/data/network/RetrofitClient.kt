@@ -8,11 +8,14 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     
-    // URL para emulador Android (localhost del PC)
-    // Si usas dispositivo físico, usa tu IP local (ej: http://192.168.1.50:3015/api/)
-    // Si despliegas en Render, usa la URL HTTPS (ej: https://aulaplus-api.onrender.com/api/)
-    private const val BASE_URL = "http://10.0.2.2:3015/api/" 
-    // private const val BASE_URL = "http://192.168.1.5:3015/api/" // Descomenta y pon tu IP si usas celular físico
+    // --- CONFIGURACIÓN DE URL ---
+    // OPCIÓN 1: LOCAL (Emulador) -> Usa esta si corres el backend en tu PC
+    // private const val BASE_URL = "http://10.0.2.2:3015/api/"
+    
+    // OPCIÓN 2: RENDER (Internet) -> DESCOMENTA ESTA Y PON TU URL REAL DE RENDER
+    // IMPORTANTE: Asegúrate de que termine en /api/
+    private const val BASE_URL = "https://TU-PROYECTO-EN-RENDER.onrender.com/api/" 
+    
     private const val EXTERNAL_API_URL = "https://api.quotable.io/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -22,8 +25,8 @@ object RetrofitClient {
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
         .addInterceptor(AuthInterceptor())
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(60, TimeUnit.SECONDS) // Aumentamos timeout para Render (se demora en despertar)
+        .readTimeout(60, TimeUnit.SECONDS)
         .build()
 
     private val externalHttpClient = OkHttpClient.Builder()

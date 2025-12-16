@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependencias
+# Agregamos --ignore-scripts para evitar que intente compilar sharp aquí si falla
 RUN npm ci
 
 # Copiar código fuente
@@ -20,20 +21,21 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar dependencias necesarias para sharp (procesamiento de imágenes)
+# Instalar dependencias necesarias para sharp en Alpine
+# vips-dev y build-base son pesados, intentaremos usar binarios precompilados primero
 RUN apk add --no-cache \
     libc6-compat \
-    vips-dev \
-    fftw-dev \
-    build-base \
     python3 \
-    && rm -rf /var/cache/apk/*
+    make \
+    g++ 
 
 # Copiar package files
 COPY package*.json ./
 
-# Instalar solo dependencias de producción
-RUN npm ci --only=production
+# TRUCO: Forzar plataforma linuxmusl para sharp en Alpine para evitar compilación
+# Esto descarga el binario correcto en lugar de intentar compilarlo
+RUN npm install --cpu=x64 --os=linux --libc=musl sharp
+RUN npm ci --only=production --ignore-scripts
 
 # Copiar build desde builder stage
 COPY --from=builder /app/dist ./dist
