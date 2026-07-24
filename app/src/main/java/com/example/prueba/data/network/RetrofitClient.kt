@@ -9,12 +9,8 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
     
     // --- CONFIGURACIÓN DE URL ---
-    // OPCIÓN 1: LOCAL (Emulador) -> Usa esta si corres el backend en tu PC
-    // private const val BASE_URL = "http://10.0.2.2:3015/api/"
-    
-    // OPCIÓN 2: RENDER (Internet) -> DESCOMENTA ESTA Y PON TU URL REAL DE RENDER
-    // IMPORTANTE: Asegúrate de que termine en /api/
-    private const val BASE_URL = "https://TU-PROYECTO-EN-RENDER.onrender.com/api/" 
+    // REEMPLAZA LA SIGUIENTE LÍNEA CON TU URL REAL DE RENDER
+    private const val BASE_URL = "PEGA_AQUÍ_TU_URL_DE_RENDER/api/" 
     
     private const val EXTERNAL_API_URL = "https://api.quotable.io/"
 
@@ -25,7 +21,7 @@ object RetrofitClient {
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
         .addInterceptor(AuthInterceptor())
-        .connectTimeout(60, TimeUnit.SECONDS) // Aumentamos timeout para Render (se demora en despertar)
+        .connectTimeout(60, TimeUnit.SECONDS) 
         .readTimeout(60, TimeUnit.SECONDS)
         .build()
 
