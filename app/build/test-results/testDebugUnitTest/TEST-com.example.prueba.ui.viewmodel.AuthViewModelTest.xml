@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.prueba.ui.viewmodel.AuthViewModelTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-12-16T03:54:28.627Z" hostname="LITO" time="1.284">
+  <properties/>
+  <testcase name="login() con credenciales correctas debe resultar en Success" classname="com.example.prueba.ui.viewmodel.AuthViewModelTest" time="0.506"/>
+  <testcase name="login() con credenciales incorrectas debe resultar en Error" classname="com.example.prueba.ui.viewmodel.AuthViewModelTest" time="0.112"/>
+  <testcase name="register() con datos nuevos debe resultar en Success" classname="com.example.prueba.ui.viewmodel.AuthViewModelTest" time="0.169"/>
+  <testcase name="register() con usuario existente debe resultar en Error" classname="com.example.prueba.ui.viewmodel.AuthViewModelTest" time="0.12"/>
+  <testcase name="register() con login posterior fallido debe resultar en Error" classname="com.example.prueba.ui.viewmodel.AuthViewModelTest" time="0.119"/>
+  <testcase name="logout() debe llamar a SessionManager.clearSession()" classname="com.example.prueba.ui.viewmodel.AuthViewModelTest" time="0.126"/>
+  <testcase name="El estado inicial de loginState y registerState debe ser Idle" classname="com.example.prueba.ui.viewmodel.AuthViewModelTest" time="0.121"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> GET https://api.quotable.io/random
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> END GET
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> GET https://api.quotable.io/random
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> END GET
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> GET https://api.quotable.io/random
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> END GET
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> GET https://api.quotable.io/random
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> END GET
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> GET https://api.quotable.io/random
+dic 16, 2025 12:54:29 A. M. okhttp3.internal.platform.Platform log
+INFORMACIÓN: --> END GET
+]]></system-err>
+</testsuite>
